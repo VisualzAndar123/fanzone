@@ -780,6 +780,7 @@
             justify-content: center;
             align-items: center;
             padding: 40px;
+            grid-column: 1 / -1;
         }
         
         .spinner {
@@ -795,6 +796,30 @@
             to {
                 transform: rotate(360deg);
             }
+        }
+        
+        /* Error Message */
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+            color: var(--text-gray);
+        }
+        
+        .error-message i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ff4757;
+        }
+        
+        .retry-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
         
         /* Responsive Styles */
@@ -971,7 +996,7 @@
                 <!-- Category 4 -->
                 <div class="category-card" data-category="men-sweatsuits" data-aos="fade-up" data-aos-delay="400">
                     <div class="category-img">
-                        <img src="img/mensweatsuitbanner.png" alt="Men Sweatsuits">
+                        <img src="img/category-pjs.jpg" alt="Men Sweatsuits">
                     </div>
                     <div class="category-name">Men Sweatsuits</div>
                 </div>
@@ -979,7 +1004,7 @@
                 <!-- Category 5 -->
                 <div class="category-card" data-category="kids-sweatsuits" data-aos="fade-up" data-aos-delay="500">
                     <div class="category-img">
-                        <img src="img/kidssweatsuitbanner.png" alt="Kids Sweatsuits">
+                        <img src="img/category-pjs.jpg" alt="Kids Sweatsuits">
                     </div>
                     <div class="category-name">Kids Sweatsuits</div>
                 </div>
@@ -1003,7 +1028,7 @@
                 <!-- Category 8 -->
                 <div class="category-card" data-category="trophies" data-aos="fade-up" data-aos-delay="800">
                     <div class="category-img">
-                        <img src="img/trophybanner.png" alt="Trophies">
+                        <img src="img/category-trophies.jpg" alt="Trophies">
                     </div>
                     <div class="category-name">Trophies</div>
                 </div>
@@ -1140,8 +1165,6 @@
 
     <!-- JavaScript -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Sanity Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@sanity/client@6"></script>
     <script>
         // Initialize AOS (Animate On Scroll)
         AOS.init({
@@ -1150,14 +1173,6 @@
             offset: 100
         });
         
-        // Initialize Sanity Client
-        const sanityClient = require('@sanity/client')({
-            projectId: 'lhgiabnu', // Replace with your Sanity project ID
-            dataset: 'production', // Replace with your dataset name
-            useCdn: true,
-            apiVersion: '2023-05-03'
-        });
-
         // Mobile Menu Toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mainNav = document.getElementById('main-nav');
@@ -1247,6 +1262,34 @@
             });
         }
 
+        // Sanity Configuration
+        const SANITY_CONFIG = {
+            projectId: 'YOUR_PROJECT_ID', // Replace with your Sanity project ID
+            dataset: 'production', // Replace with your dataset name
+            apiVersion: '2023-05-03',
+            useCdn: true
+        };
+
+        // Build Sanity Image URL
+        function buildSanityImageUrl(source) {
+            if (!source || !source.asset) return null;
+            
+            const { asset } = source;
+            let imageUrl = '';
+            
+            if (asset._ref) {
+                // Reference format: image-abc123-500x500-jpg
+                const ref = asset._ref;
+                const [, id, dimensions, format] = ref.split('-');
+                imageUrl = `https://cdn.sanity.io/images/${SANITY_CONFIG.projectId}/${SANITY_CONFIG.dataset}/${id}-${dimensions}.${format}`;
+            } else if (asset.url) {
+                // Direct URL
+                imageUrl = asset.url;
+            }
+            
+            return imageUrl;
+        }
+
         // Fetch Products from Sanity
         async function fetchProducts() {
             try {
@@ -1258,171 +1301,210 @@
                     sizes,
                     images[]{
                         asset->{
-                            url,
-                            metadata {
-                                dimensions
-                            }
+                            _ref,
+                            url
                         }
                     }
                 }`;
                 
-                const products = await sanityClient.fetch(query);
-                return products;
+                const encodedQuery = encodeURIComponent(query);
+                const url = `https://${SANITY_CONFIG.projectId}.api.sanity.io/v${SANITY_CONFIG.apiVersion}/data/query/${SANITY_CONFIG.dataset}?query=${encodedQuery}`;
+                
+                console.log('Fetching products from:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.result) {
+                    throw new Error('Invalid response format from Sanity');
+                }
+                
+                console.log('Products fetched successfully:', data.result);
+                return data.result;
             } catch (error) {
-                console.error('Error fetching products:', error);
-                return [];
+                console.error('Error fetching products from Sanity:', error);
+                throw error;
             }
         }
 
         // Render Products
         async function renderProducts() {
             const productGrid = document.getElementById('product-grid');
-            productGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
             
-            const products = await fetchProducts();
-            
-            if (products.length === 0) {
-                productGrid.innerHTML = '<p class="no-products">No products available at the moment.</p>';
-                return;
-            }
-            
-            productGrid.innerHTML = '';
-            
-            products.forEach((product, index) => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                productCard.setAttribute('data-category', product.category);
-                productCard.setAttribute('data-aos', 'fade-up');
-                productCard.setAttribute('data-aos-delay', (index % 8) * 100);
+            try {
+                productGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
                 
-                // Create carousel HTML if multiple images, otherwise single image
-                let carouselHTML = '';
-                if (product.images && product.images.length > 1) {
-                    carouselHTML = `
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                ${product.images.map((image, imgIndex) => `
+                const products = await fetchProducts();
+                
+                if (products.length === 0) {
+                    productGrid.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-box-open"></i>
+                            <h3>No Products Available</h3>
+                            <p>There are no products in the store at the moment. Please check back later.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                productGrid.innerHTML = '';
+                
+                products.forEach((product, index) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.setAttribute('data-category', product.category);
+                    productCard.setAttribute('data-aos', 'fade-up');
+                    productCard.setAttribute('data-aos-delay', (index % 8) * 100);
+                    
+                    // Create carousel HTML if multiple images, otherwise single image
+                    let carouselHTML = '';
+                    if (product.images && product.images.length > 1) {
+                        carouselHTML = `
+                            <div class="carousel-container">
+                                <div class="carousel-slides">
+                                    ${product.images.map((image, imgIndex) => {
+                                        const imageUrl = buildSanityImageUrl(image);
+                                        return `
+                                            <div class="carousel-slide">
+                                                <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title} ${imgIndex + 1}">
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <button class="carousel-arrow left">&#10094;</button>
+                                <button class="carousel-arrow right">&#10095;</button>
+                                <div class="carousel-indicators">
+                                    ${product.images.map((_, imgIndex) => `
+                                        <span class="carousel-indicator ${imgIndex === 0 ? 'active' : ''}"></span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else if (product.images && product.images.length === 1) {
+                        const imageUrl = buildSanityImageUrl(product.images[0]);
+                        carouselHTML = `
+                            <div class="carousel-container">
+                                <div class="carousel-slides">
                                     <div class="carousel-slide">
-                                        <img src="${image.asset.url}" alt="${product.title} ${imgIndex + 1}">
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                ${product.images.map((_, imgIndex) => `
-                                    <span class="carousel-indicator ${imgIndex === 0 ? 'active' : ''}"></span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                } else if (product.images && product.images.length === 1) {
-                    carouselHTML = `
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="${product.images[0].asset.url}" alt="${product.title}">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    carouselHTML = `
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-gray);">
-                                        No Image Available
+                                        <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title}">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                }
-                
-                // Create sizes HTML if available
-                let sizesHTML = '';
-                if (product.sizes && product.sizes.length > 0) {
-                    sizesHTML = `
-                        <div class="product-sizes">
-                            ${product.sizes.map(size => `
-                                <span class="size-option" data-size="${size}">${size}</span>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-                
-                productCard.innerHTML = `
-                    <div class="product-img">
-                        ${carouselHTML}
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">${product.title}</h3>
-                        <div class="product-price">$${product.price.toFixed(2)}</div>
-                        ${sizesHTML}
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                `;
-                
-                productGrid.appendChild(productCard);
-            });
-            
-            // Reinitialize carousels for the new products
-            initializeProductCarousels();
-            
-            // Add event listeners for size selection
-            document.querySelectorAll('.size-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove selected class from all sizes in this product
-                    const productCard = this.closest('.product-card');
-                    productCard.querySelectorAll('.size-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    // Add selected class to clicked size
-                    this.classList.add('selected');
-                });
-            });
-            
-            // Add event listeners for add to cart buttons
-            document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const productCard = e.target.closest('.product-card');
-                    const productName = productCard.querySelector('.product-name').textContent;
-                    const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
-                    const productImage = productCard.querySelector('.carousel-slide img').src;
-                    const productAlt = productCard.querySelector('.carousel-slide img').alt;
-                    
-                    // Get selected size if available
-                    const selectedSize = productCard.querySelector('.size-option.selected');
-                    const size = selectedSize ? selectedSize.getAttribute('data-size') : null;
-                    
-                    // Check if product already in cart
-                    const existingItem = cart.find(item => 
-                        item.name === productName && item.size === size
-                    );
-                    
-                    if (existingItem) {
-                        existingItem.quantity += 1;
+                        `;
                     } else {
-                        cart.push({
-                            name: productName,
-                            price: productPrice,
-                            quantity: 1,
-                            image: productImage,
-                            alt: productAlt,
-                            size: size
-                        });
+                        carouselHTML = `
+                            <div class="carousel-container">
+                                <div class="carousel-slides">
+                                    <div class="carousel-slide">
+                                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-gray);">
+                                            No Image Available
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     }
                     
-                    updateCart();
+                    // Create sizes HTML if available
+                    let sizesHTML = '';
+                    if (product.sizes && product.sizes.length > 0) {
+                        sizesHTML = `
+                            <div class="product-sizes">
+                                ${product.sizes.map(size => `
+                                    <span class="size-option" data-size="${size}">${size}</span>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
                     
-                    // Show cart modal after adding item
-                    cartModal.classList.add('active');
-                    overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
+                    productCard.innerHTML = `
+                        <div class="product-img">
+                            ${carouselHTML}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">${product.title}</h3>
+                            <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                            ${sizesHTML}
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    `;
+                    
+                    productGrid.appendChild(productCard);
                 });
-            });
+                
+                // Reinitialize carousels for the new products
+                initializeProductCarousels();
+                
+                // Add event listeners for size selection
+                document.querySelectorAll('.size-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove selected class from all sizes in this product
+                        const productCard = this.closest('.product-card');
+                        productCard.querySelectorAll('.size-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // Add selected class to clicked size
+                        this.classList.add('selected');
+                    });
+                });
+                
+                // Add event listeners for add to cart buttons
+                document.querySelectorAll('.add-to-cart').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const productCard = e.target.closest('.product-card');
+                        const productName = productCard.querySelector('.product-name').textContent;
+                        const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
+                        const productImage = productCard.querySelector('.carousel-slide img').src;
+                        const productAlt = productCard.querySelector('.carousel-slide img').alt;
+                        
+                        // Get selected size if available
+                        const selectedSize = productCard.querySelector('.size-option.selected');
+                        const size = selectedSize ? selectedSize.getAttribute('data-size') : null;
+                        
+                        // Check if product already in cart
+                        const existingItem = cart.find(item => 
+                            item.name === productName && item.size === size
+                        );
+                        
+                        if (existingItem) {
+                            existingItem.quantity += 1;
+                        } else {
+                            cart.push({
+                                name: productName,
+                                price: productPrice,
+                                quantity: 1,
+                                image: productImage,
+                                alt: productAlt,
+                                size: size
+                            });
+                        }
+                        
+                        updateCart();
+                        
+                        // Show cart modal after adding item
+                        cartModal.classList.add('active');
+                        overlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error rendering products:', error);
+                productGrid.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Failed to Load Products</h3>
+                        <p>There was an error loading the products. Please check your internet connection and try again.</p>
+                        <button class="retry-btn" onclick="renderProducts()">Retry</button>
+                    </div>
+                `;
+            }
         }
 
         // Initialize product rendering when page loads
