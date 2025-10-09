@@ -421,6 +421,28 @@
             margin-bottom: 15px;
         }
         
+        .product-sizes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .size-option {
+            padding: 5px 10px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .size-option:hover, .size-option.selected {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+        
         .add-to-cart {
             width: 100%;
             padding: 10px;
@@ -752,6 +774,29 @@
             visibility: visible;
         }
         
+        /* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
         /* Responsive Styles */
         @media (max-width: 992px) {
             .hero h1 {
@@ -894,162 +939,71 @@
         </div>
     </section>
 
-    <!-- Featured Products Section -->
-    <section class="section">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">Bestsellers</h2>
-            <div class="products-grid">
-                <!-- Product 1 -->
-                <div class="product-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="ronaldo1.jpg" alt="CR7 Al-Nassr Jersey Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="ronaldo2.jpg" alt="CR7 Al-Nassr Jersey Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">CR7 Al-Nassr Jersey</h3>
-                        <div class="product-price">$14.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <!-- Product 2 -->
-                <div class="product-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/gloves1.jpg" alt="Pro Goalkeeper Gloves Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/gloves2.jpg" alt="Pro Goalkeeper Gloves Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Pro Goalkeeper Gloves</h3>
-                        <div class="product-price">$39.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <!-- Product 3 -->
-                <div class="product-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/scarf1.jpg" alt="Team Scarf">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Team Scarf</h3>
-                        <div class="product-price">$24.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <!-- Product 4 -->
-                <div class="product-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/boots1.jpg" alt="Football Boots Side">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/boots2.jpg" alt="Football Boots Bottom">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Football Boots</h3>
-                        <div class="product-price">$79.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Categories Section -->
     <section id="categories" class="section">
         <div class="container">
             <h2 class="section-title" data-aos="fade-up">Categories</h2>
             <div class="categories-grid">
                 <!-- Category 1 -->
-                <div class="category-card" data-category="kits" data-aos="fade-up" data-aos-delay="100">
+                <div class="category-card" data-category="men-jerseys" data-aos="fade-up" data-aos-delay="100">
                     <div class="category-img">
-                        <img src="img/category-kits.jpg" alt="Football Kits">
+                        <img src="img/kitsbanner.png" alt="Men Jerseys">
                     </div>
-                    <div class="category-name">Kits</div>
+                    <div class="category-name">Men Jerseys</div>
                 </div>
                 
                 <!-- Category 2 -->
-                <div class="category-card" data-category="kids-kits" data-aos="fade-up" data-aos-delay="200">
+                <div class="category-card" data-category="fan-jerseys" data-aos="fade-up" data-aos-delay="200">
                     <div class="category-img">
-                        <img src="img/category-kids.jpg" alt="Kids Kits">
+                        <img src="img/kitsbanner.png" alt="Fan Jerseys">
+                    </div>
+                    <div class="category-name">Fan Jerseys</div>
+                </div>
+                
+                <!-- Category 3 -->
+                <div class="category-card" data-category="kids-kits" data-aos="fade-up" data-aos-delay="300">
+                    <div class="category-img">
+                        <img src="img/kidsbanner.png" alt="Kids Kits">
                     </div>
                     <div class="category-name">Kids Kits</div>
                 </div>
                 
-                <!-- Category 3 -->
-                <div class="category-card" data-category="accessories" data-aos="fade-up" data-aos-delay="300">
+                <!-- Category 4 -->
+                <div class="category-card" data-category="men-sweatsuits" data-aos="fade-up" data-aos-delay="400">
                     <div class="category-img">
-                        <img src="img/category-accessories.jpg" alt="Accessories">
+                        <img src="img/mensweatsuitbanner.png" alt="Men Sweatsuits">
+                    </div>
+                    <div class="category-name">Men Sweatsuits</div>
+                </div>
+                
+                <!-- Category 5 -->
+                <div class="category-card" data-category="kids-sweatsuits" data-aos="fade-up" data-aos-delay="500">
+                    <div class="category-img">
+                        <img src="img/kidssweatsuitbanner.png" alt="Kids Sweatsuits">
+                    </div>
+                    <div class="category-name">Kids Sweatsuits</div>
+                </div>
+
+                <!-- Category 6 -->
+                <div class="category-card" data-category="accessories" data-aos="fade-up" data-aos-delay="600">
+                    <div class="category-img">
+                        <img src="img/football-composition.jpg" alt="Accessories">
                     </div>
                     <div class="category-name">Accessories</div>
                 </div>
                 
-                <!-- Category 4 -->
-                <div class="category-card" data-category="gloves" data-aos="fade-up" data-aos-delay="400">
+                <!-- Category 7 -->
+                <div class="category-card" data-category="gloves" data-aos="fade-up" data-aos-delay="700">
                     <div class="category-img">
-                        <img src="img/category-gloves.jpg" alt="Goalkeeper Gloves">
+                        <img src="img/glovesbanner.jpg" alt="Goalkeeper Gloves">
                     </div>
                     <div class="category-name">Gloves</div>
                 </div>
                 
-                <!-- Category 5 -->
-                <div class="category-card" data-category="pjs" data-aos="fade-up" data-aos-delay="500">
+                <!-- Category 8 -->
+                <div class="category-card" data-category="trophies" data-aos="fade-up" data-aos-delay="800">
                     <div class="category-img">
-                        <img src="img/category-pjs.jpg" alt="Pajamas">
-                    </div>
-                    <div class="category-name">PJs</div>
-                </div>
-                
-                <!-- Category 6 -->
-                <div class="category-card" data-category="trophies" data-aos="fade-up" data-aos-delay="600">
-                    <div class="category-img">
-                        <img src="img/category-trophies.jpg" alt="Trophies">
+                        <img src="img/trophybanner.png" alt="Trophies">
                     </div>
                     <div class="category-name">Trophies</div>
                 </div>
@@ -1064,205 +1018,20 @@
             
             <div class="filter-buttons" data-aos="fade-up">
                 <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="kits">Kits</button>
+                <button class="filter-btn" data-filter="men-jerseys">Men Jerseys</button>
+                <button class="filter-btn" data-filter="fan-jerseys">Fan Jerseys</button>
                 <button class="filter-btn" data-filter="kids-kits">Kids Kits</button>
+                <button class="filter-btn" data-filter="men-sweatsuits">Men Sweatsuits</button>
+                <button class="filter-btn" data-filter="kids-sweatsuits">Kids Sweatsuits</button>
                 <button class="filter-btn" data-filter="accessories">Accessories</button>
                 <button class="filter-btn" data-filter="gloves">Gloves</button>
-                <button class="filter-btn" data-filter="pjs">PJs</button>
                 <button class="filter-btn" data-filter="trophies">Trophies</button>
             </div>
             
             <div class="products-grid" id="product-grid">
-                <!-- Products will be filtered here by JavaScript -->
-                <!-- Product items with data-category attributes -->
-                <div class="product-card" data-category="kits" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/home-kit-2023.jpg" alt="Home Kit 2023 Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/home-kit-2023-back.jpg" alt="Home Kit 2023 Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Home Kit 2023</h3>
-                        <div class="product-price">$59.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="kits" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/away-kit-2023.jpg" alt="Away Kit 2023">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Away Kit 2023</h3>
-                        <div class="product-price">$59.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="kids-kits" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/kids-home-kit.jpg" alt="Kids Home Kit Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/kids-home-kit-back.jpg" alt="Kids Home Kit Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Kids Home Kit</h3>
-                        <div class="product-price">$39.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="accessories" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/scarf1.jpg" alt="Team Scarf">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Team Scarf</h3>
-                        <div class="product-price">$24.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="accessories" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/cap1.jpg" alt="Team Cap Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/cap2.jpg" alt="Team Cap Side">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Team Cap</h3>
-                        <div class="product-price">$19.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="gloves" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/gloves1.jpg" alt="Goalkeeper Gloves Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/gloves2.jpg" alt="Goalkeeper Gloves Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Goalkeeper Gloves</h3>
-                        <div class="product-price">$39.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="pjs" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/pjs1.jpg" alt="Team Pajamas Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/pjs2.jpg" alt="Team Pajamas Back">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Team Pajamas</h3>
-                        <div class="product-price">$34.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
-                </div>
-                
-                <div class="product-card" data-category="trophies" data-aos="fade-up">
-                    <div class="product-img">
-                        <div class="carousel-container">
-                            <div class="carousel-slides">
-                                <div class="carousel-slide">
-                                    <img src="img/trophy1.jpg" alt="Replica Trophy Front">
-                                </div>
-                                <div class="carousel-slide">
-                                    <img src="img/trophy2.jpg" alt="Replica Trophy Side">
-                                </div>
-                            </div>
-                            <button class="carousel-arrow left">&#10094;</button>
-                            <button class="carousel-arrow right">&#10095;</button>
-                            <div class="carousel-indicators">
-                                <span class="carousel-indicator active"></span>
-                                <span class="carousel-indicator"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Replica Trophy</h3>
-                        <div class="product-price">$89.99</div>
-                        <button class="add-to-cart">Add to Cart</button>
-                    </div>
+                <!-- Products will be loaded dynamically from Sanity -->
+                <div class="loading">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </div>
@@ -1371,6 +1140,8 @@
 
     <!-- JavaScript -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Sanity Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@sanity/client@6"></script>
     <script>
         // Initialize AOS (Animate On Scroll)
         AOS.init({
@@ -1379,6 +1150,14 @@
             offset: 100
         });
         
+        // Initialize Sanity Client
+        const sanityClient = require('@sanity/client')({
+            projectId: 'lhgiabnu', // Replace with your Sanity project ID
+            dataset: 'production', // Replace with your dataset name
+            useCdn: true,
+            apiVersion: '2023-05-03'
+        });
+
         // Mobile Menu Toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mainNav = document.getElementById('main-nav');
@@ -1468,8 +1247,186 @@
             });
         }
 
-        // Initialize product carousels when page loads
-        document.addEventListener('DOMContentLoaded', initializeProductCarousels);
+        // Fetch Products from Sanity
+        async function fetchProducts() {
+            try {
+                const query = `*[_type == "product"]{
+                    _id,
+                    title,
+                    price,
+                    category,
+                    sizes,
+                    images[]{
+                        asset->{
+                            url,
+                            metadata {
+                                dimensions
+                            }
+                        }
+                    }
+                }`;
+                
+                const products = await sanityClient.fetch(query);
+                return products;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return [];
+            }
+        }
+
+        // Render Products
+        async function renderProducts() {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            const products = await fetchProducts();
+            
+            if (products.length === 0) {
+                productGrid.innerHTML = '<p class="no-products">No products available at the moment.</p>';
+                return;
+            }
+            
+            productGrid.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.setAttribute('data-category', product.category);
+                productCard.setAttribute('data-aos', 'fade-up');
+                productCard.setAttribute('data-aos-delay', (index % 8) * 100);
+                
+                // Create carousel HTML if multiple images, otherwise single image
+                let carouselHTML = '';
+                if (product.images && product.images.length > 1) {
+                    carouselHTML = `
+                        <div class="carousel-container">
+                            <div class="carousel-slides">
+                                ${product.images.map((image, imgIndex) => `
+                                    <div class="carousel-slide">
+                                        <img src="${image.asset.url}" alt="${product.title} ${imgIndex + 1}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="carousel-arrow left">&#10094;</button>
+                            <button class="carousel-arrow right">&#10095;</button>
+                            <div class="carousel-indicators">
+                                ${product.images.map((_, imgIndex) => `
+                                    <span class="carousel-indicator ${imgIndex === 0 ? 'active' : ''}"></span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else if (product.images && product.images.length === 1) {
+                    carouselHTML = `
+                        <div class="carousel-container">
+                            <div class="carousel-slides">
+                                <div class="carousel-slide">
+                                    <img src="${product.images[0].asset.url}" alt="${product.title}">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    carouselHTML = `
+                        <div class="carousel-container">
+                            <div class="carousel-slides">
+                                <div class="carousel-slide">
+                                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-gray);">
+                                        No Image Available
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Create sizes HTML if available
+                let sizesHTML = '';
+                if (product.sizes && product.sizes.length > 0) {
+                    sizesHTML = `
+                        <div class="product-sizes">
+                            ${product.sizes.map(size => `
+                                <span class="size-option" data-size="${size}">${size}</span>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                productCard.innerHTML = `
+                    <div class="product-img">
+                        ${carouselHTML}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.title}</h3>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                        ${sizesHTML}
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                `;
+                
+                productGrid.appendChild(productCard);
+            });
+            
+            // Reinitialize carousels for the new products
+            initializeProductCarousels();
+            
+            // Add event listeners for size selection
+            document.querySelectorAll('.size-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all sizes in this product
+                    const productCard = this.closest('.product-card');
+                    productCard.querySelectorAll('.size-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked size
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Add event listeners for add to cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productCard = e.target.closest('.product-card');
+                    const productName = productCard.querySelector('.product-name').textContent;
+                    const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
+                    const productImage = productCard.querySelector('.carousel-slide img').src;
+                    const productAlt = productCard.querySelector('.carousel-slide img').alt;
+                    
+                    // Get selected size if available
+                    const selectedSize = productCard.querySelector('.size-option.selected');
+                    const size = selectedSize ? selectedSize.getAttribute('data-size') : null;
+                    
+                    // Check if product already in cart
+                    const existingItem = cart.find(item => 
+                        item.name === productName && item.size === size
+                    );
+                    
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({
+                            name: productName,
+                            price: productPrice,
+                            quantity: 1,
+                            image: productImage,
+                            alt: productAlt,
+                            size: size
+                        });
+                    }
+                    
+                    updateCart();
+                    
+                    // Show cart modal after adding item
+                    cartModal.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+        }
+
+        // Initialize product rendering when page loads
+        document.addEventListener('DOMContentLoaded', renderProducts);
         
         // Cart Functionality
         const cartIcon = document.getElementById('cart-icon');
@@ -1501,39 +1458,6 @@
             document.body.style.overflow = 'auto';
         });
         
-        // Add to Cart Functionality
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const productCard = e.target.closest('.product-card');
-                const productName = productCard.querySelector('.product-name').textContent;
-                const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
-                const productImage = productCard.querySelector('.carousel-slide img').src;
-                const productAlt = productCard.querySelector('.carousel-slide img').alt;
-                
-                // Check if product already in cart
-                const existingItem = cart.find(item => item.name === productName);
-                
-                if (existingItem) {
-                    existingItem.quantity += 1;
-                } else {
-                    cart.push({
-                        name: productName,
-                        price: productPrice,
-                        quantity: 1,
-                        image: productImage,
-                        alt: productAlt
-                    });
-                }
-                
-                updateCart();
-                
-                // Show cart modal after adding item
-                cartModal.classList.add('active');
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-        });
-        
         // Update Cart Display
         function updateCart() {
             // Update cart count
@@ -1562,7 +1486,7 @@
                         <img src="${item.image}" alt="${item.alt}">
                     </div>
                     <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-name">${item.name} ${item.size ? `(${item.size})` : ''}</div>
                         <div class="cart-item-price">$${item.price.toFixed(2)}</div>
                         <div class="cart-item-actions">
                             <button class="quantity-btn minus" data-index="${index}">-</button>
@@ -1611,7 +1535,6 @@
         
         // Product Filtering
         const filterButtons = document.querySelectorAll('.filter-btn');
-        const productCards = document.querySelectorAll('#product-grid .product-card');
         const categoryCards = document.querySelectorAll('.category-card');
         
         filterButtons.forEach(button => {
@@ -1623,6 +1546,7 @@
                 const filter = button.getAttribute('data-filter');
                 
                 // Filter products
+                const productCards = document.querySelectorAll('#product-grid .product-card');
                 productCards.forEach(card => {
                     if (filter === 'all' || card.getAttribute('data-category') === filter) {
                         card.style.display = 'block';
@@ -1647,6 +1571,7 @@
                 });
                 
                 // Filter products
+                const productCards = document.querySelectorAll('#product-grid .product-card');
                 productCards.forEach(productCard => {
                     if (productCard.getAttribute('data-category') === category) {
                         productCard.style.display = 'block';
