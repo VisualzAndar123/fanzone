@@ -756,6 +756,104 @@
             opacity: 0.9;
         }
         
+        /* Checkout Modal */
+        .checkout-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .checkout-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .checkout-content {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+        
+        .checkout-modal.active .checkout-content {
+            transform: translateY(0);
+        }
+        
+        .checkout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .close-checkout {
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-checkout:hover {
+            color: var(--accent-orange);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .submit-order-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-orange));
+            color: var(--text-light);
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-top: 10px;
+        }
+        
+        .submit-order-btn:hover {
+            opacity: 0.9;
+        }
+        
         .overlay {
             position: fixed;
             top: 0;
@@ -915,6 +1013,10 @@
             
             .cart-item-actions {
                 justify-content: space-between;
+            }
+            
+            .checkout-content {
+                padding: 20px;
             }
         }
         
@@ -1139,7 +1241,43 @@
         </div>
         
         <div class="cart-total" id="cart-total">Total: $0.00</div>
-        <button class="checkout-btn">Proceed to Checkout</button>
+        <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkout-modal">
+        <div class="checkout-content">
+            <div class="checkout-header">
+                <h3>Checkout</h3>
+                <div class="close-checkout" id="close-checkout">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" required>
+                </div>
+                
+                <button type="submit" class="submit-order-btn">Submit Order via WhatsApp</button>
+            </form>
+        </div>
     </div>
     
     <div class="overlay" id="overlay"></div>
@@ -1290,8 +1428,20 @@
             return imageUrl;
         }
 
-        // Fetch Products from Sanity
+        // Cache for products
+        let productsCache = null;
+        let productsCacheTimestamp = 0;
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+        // Fetch Products from Sanity with caching
         async function fetchProducts() {
+            // Check if we have a valid cache
+            const now = Date.now();
+            if (productsCache && (now - productsCacheTimestamp) < CACHE_DURATION) {
+                console.log('Using cached products');
+                return productsCache;
+            }
+            
             try {
                 const query = `*[_type == "product"]{
                     _id,
@@ -1325,6 +1475,11 @@
                 }
                 
                 console.log('Products fetched successfully:', data.result);
+                
+                // Cache the results
+                productsCache = data.result;
+                productsCacheTimestamp = now;
+                
                 return data.result;
             } catch (error) {
                 console.error('Error fetching products from Sanity:', error);
@@ -1332,7 +1487,7 @@
             }
         }
 
-        // Render Products
+        // Render Products with optimized rendering
         async function renderProducts() {
             const productGrid = document.getElementById('product-grid');
             
@@ -1352,7 +1507,8 @@
                     return;
                 }
                 
-                productGrid.innerHTML = '';
+                // Use DocumentFragment for faster DOM manipulation
+                const fragment = document.createDocumentFragment();
                 
                 products.forEach((product, index) => {
                     const productCard = document.createElement('div');
@@ -1371,7 +1527,7 @@
                                         const imageUrl = buildSanityImageUrl(image);
                                         return `
                                             <div class="carousel-slide">
-                                                <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title} ${imgIndex + 1}">
+                                                <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title} ${imgIndex + 1}" loading="lazy">
                                             </div>
                                         `;
                                     }).join('')}
@@ -1391,7 +1547,7 @@
                             <div class="carousel-container">
                                 <div class="carousel-slides">
                                     <div class="carousel-slide">
-                                        <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title}">
+                                        <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title}" loading="lazy">
                                     </div>
                                 </div>
                             </div>
@@ -1434,8 +1590,12 @@
                         </div>
                     `;
                     
-                    productGrid.appendChild(productCard);
+                    fragment.appendChild(productCard);
                 });
+                
+                // Clear and append all at once
+                productGrid.innerHTML = '';
+                productGrid.appendChild(fragment);
                 
                 // Reinitialize carousels for the new products
                 initializeProductCarousels();
@@ -1518,6 +1678,7 @@
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
         const cartCount = document.querySelector('.cart-count');
+        const checkoutBtn = document.getElementById('checkout-btn');
         
         let cart = [];
         
@@ -1615,6 +1776,74 @@
             cartTotal.textContent = `Total: $${total.toFixed(2)}`;
         }
         
+        // Checkout Modal Functionality
+        const checkoutModal = document.getElementById('checkout-modal');
+        const closeCheckout = document.getElementById('close-checkout');
+        const checkoutForm = document.getElementById('checkout-form');
+        
+        // Open checkout modal
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            cartModal.classList.remove('active');
+            checkoutModal.classList.add('active');
+            overlay.classList.add('active');
+        });
+        
+        // Close checkout modal
+        closeCheckout.addEventListener('click', () => {
+            checkoutModal.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Submit checkout form
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const phone = document.getElementById('phone').value;
+            const location = document.getElementById('location').value;
+            
+            // Generate order message
+            let message = `New Order from Fanzone Website%0A%0A`;
+            message += `Customer Information:%0A`;
+            message += `Name: ${firstName} ${lastName}%0A`;
+            message += `Phone: ${phone}%0A`;
+            message += `Location: ${location}%0A%0A`;
+            message += `Order Details:%0A`;
+            
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                message += `${index + 1}. ${item.name} ${item.size ? `(${item.size})` : ''} - $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}%0A`;
+            });
+            
+            message += `%0ATotal: $${total.toFixed(2)}`;
+            
+            // Create WhatsApp URL
+            const whatsappUrl = `https://wa.me/+96179129360?text=${message}`;
+            
+            // Open WhatsApp in new tab
+            window.open(whatsappUrl, '_blank');
+            
+            // Reset form and close modals
+            checkoutForm.reset();
+            checkoutModal.classList.remove('active');
+            overlay.classList.remove('active');
+            
+            // Clear cart
+            cart = [];
+            updateCart();
+            
+            // Show success message
+            alert('Order submitted successfully! You will be redirected to WhatsApp to complete your order.');
+        });
+        
         // Product Filtering
         const filterButtons = document.querySelectorAll('.filter-btn');
         const categoryCards = document.querySelectorAll('.category-card');
@@ -1682,4 +1911,3 @@
     </script>
 </body>
 </html>
-
