@@ -295,7 +295,6 @@
         /* Updated Product Image Styles with Carousel */
         .product-img {
             height: 370px;
-            min-height: 370px;
             background-color: #2a252c;
             position: relative;
             overflow: hidden;
@@ -949,11 +948,6 @@
                 margin-top: 15px;
                 display: none;
             }
-
-            .product-img {
-                height: 370px;
-                min-height: 370px;
-            }
             
             nav.active {
                 display: block;
@@ -985,11 +979,6 @@
         @media (max-width: 576px) {
             .hero h1 {
                 font-size: 2.5rem;
-            }
-
-            .product-img {
-                height: 370px;
-                min-height: 370px;
             }
             
             .hero p {
@@ -1035,11 +1024,6 @@
             .cart-modal {
                 max-width: 95%;
             }
-
-            .product-img {
-                height: 370px;
-                min-height: 370px;
-            }
         }
     </style>
 </head>
@@ -1063,6 +1047,7 @@
                 <a href="https://www.facebook.com/profile.php?id=61580421264185" class="icon" target="_blank"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://wa.me/+96179129360" class="icon" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 <a href="https://www.tiktok.com/@fanzone.lb" class="icon" target="_blank"><i class="fab fa-tiktok"></i></a>
+                <a href="https://maps.app.goo.gl/FsmfFXtyCcvsaucn9" class="icon" target="_blank"><i class="fas fa-map-marker-alt"></i></a>
                 <div class="icon cart-icon" id="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
@@ -1450,14 +1435,6 @@
         let productsCacheTimestamp = 0;
         const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-        // Function to generate shareable product link
-        function generateProductLink(product) {
-            // Create a simple URL with product ID that could be used to identify the product
-            // In a real implementation, this would be a proper product page URL
-            const baseUrl = window.location.href.split('#')[0]; // Get current page URL without hash
-            return `${baseUrl}#product-${product._id}`;
-        }
-
         // Fetch Products from Sanity with caching
         async function fetchProducts() {
             // Check if we have a valid cache
@@ -1539,7 +1516,6 @@
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
                     productCard.setAttribute('data-category', product.category);
-                    productCard.setAttribute('data-product-id', product._id);
                    // productCard.setAttribute('data-aos', 'fade-up');// add "fade-up" animation
                     //productCard.setAttribute('data-aos-delay', (index % 8) * 100);
                     
@@ -1648,7 +1624,6 @@
                         const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
                         const productImage = productCard.querySelector('.carousel-slide img').src;
                         const productAlt = productCard.querySelector('.carousel-slide img').alt;
-                        const productId = productCard.getAttribute('data-product-id');
                         
                         // Get selected size if available
                         const selectedSize = productCard.querySelector('.size-option.selected');
@@ -1662,19 +1637,13 @@
                         if (existingItem) {
                             existingItem.quantity += 1;
                         } else {
-                            // Find the full product details to generate shareable link
-                            const product = products.find(p => p._id === productId);
-                            const shareableLink = product ? generateProductLink(product) : '';
-                            
                             cart.push({
                                 name: productName,
                                 price: productPrice,
                                 quantity: 1,
                                 image: productImage,
                                 alt: productAlt,
-                                size: size,
-                                id: productId,
-                                shareableLink: shareableLink
+                                size: size
                             });
                         }
                         
@@ -1854,12 +1823,6 @@
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
                 message += `${index + 1}. ${item.name} ${item.size ? `(${item.size})` : ''} - $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}%0A`;
-                
-                // Add shareable product link if available
-                if (item.shareableLink) {
-                    message += `   Product Link: ${item.shareableLink}%0A`;
-                }
-                message += `%0A`;
             });
             
             message += `%0ATotal: $${total.toFixed(2)}`;
@@ -1950,3 +1913,8 @@
     </script>
 </body>
 </html>
+
+
+
+
+
