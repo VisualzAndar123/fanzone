@@ -295,6 +295,8 @@
         /* Updated Product Image Styles with Carousel */
         .product-img {
             height: 370px;
+            
+            min-height: 370px;
             background-color: #2a252c;
             position: relative;
             overflow: hidden;
@@ -325,7 +327,7 @@
 
         .product-img .carousel-slide img {
             width: 100%;
-            height: 100%;
+            height: auto;
             object-fit: cover;
         }
 
@@ -948,6 +950,11 @@
                 margin-top: 15px;
                 display: none;
             }
+
+            .product-img {
+                height: 370px;
+                min-height: 370px;
+            }
             
             nav.active {
                 display: block;
@@ -979,6 +986,11 @@
         @media (max-width: 576px) {
             .hero h1 {
                 font-size: 2.5rem;
+            }
+
+            .product-img {
+                height: 370px;
+                min-height: 370px;
             }
             
             .hero p {
@@ -1024,6 +1036,11 @@
             .cart-modal {
                 max-width: 95%;
             }
+
+            .product-img {
+                height: 370px;
+                min-height: 370px;
+            }
         }
     </style>
 </head>
@@ -1047,7 +1064,6 @@
                 <a href="https://www.facebook.com/profile.php?id=61580421264185" class="icon" target="_blank"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://wa.me/+96179129360" class="icon" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 <a href="https://www.tiktok.com/@fanzone.lb" class="icon" target="_blank"><i class="fab fa-tiktok"></i></a>
-                <a href="https://maps.app.goo.gl/FsmfFXtyCcvsaucn9" class="icon" target="_blank"><i class="fas fa-map-marker-alt"></i></a>
                 <div class="icon cart-icon" id="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
@@ -1516,17 +1532,21 @@
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
                     productCard.setAttribute('data-category', product.category);
+                    productCard.setAttribute('data-product-id', product._id);
                    // productCard.setAttribute('data-aos', 'fade-up');// add "fade-up" animation
                     //productCard.setAttribute('data-aos-delay', (index % 8) * 100);
                     
                     // Create carousel HTML if multiple images, otherwise single image
                     let carouselHTML = '';
+                    let imageUrls = [];
+                    
                     if (product.images && product.images.length > 1) {
                         carouselHTML = `
                             <div class="carousel-container">
                                 <div class="carousel-slides">
                                     ${product.images.map((image, imgIndex) => {
                                         const imageUrl = buildSanityImageUrl(image);
+                                        imageUrls.push(imageUrl);
                                         return `
                                             <div class="carousel-slide">
                                                 <img src="${imageUrl || 'img/placeholder.jpg'}" alt="${product.title} ${imgIndex + 1}" loading="lazy">
@@ -1545,6 +1565,7 @@
                         `;
                     } else if (product.images && product.images.length === 1) {
                         const imageUrl = buildSanityImageUrl(product.images[0]);
+                        imageUrls.push(imageUrl);
                         carouselHTML = `
                             <div class="carousel-container">
                                 <div class="carousel-slides">
@@ -1592,6 +1613,9 @@
                         </div>
                     `;
                     
+                    // Store image URLs in the product card for later use
+                    productCard.setAttribute('data-image-urls', JSON.stringify(imageUrls));
+                    
                     fragment.appendChild(productCard);
                 });
                 
@@ -1624,6 +1648,10 @@
                         const productPrice = parseFloat(productCard.querySelector('.product-price').textContent.replace('$', ''));
                         const productImage = productCard.querySelector('.carousel-slide img').src;
                         const productAlt = productCard.querySelector('.carousel-slide img').alt;
+                        const productId = productCard.getAttribute('data-product-id');
+                        
+                        // Get all image URLs for this product
+                        const imageUrls = JSON.parse(productCard.getAttribute('data-image-urls') || '[]');
                         
                         // Get selected size if available
                         const selectedSize = productCard.querySelector('.size-option.selected');
@@ -1643,7 +1671,9 @@
                                 quantity: 1,
                                 image: productImage,
                                 alt: productAlt,
-                                size: size
+                                size: size,
+                                id: productId,
+                                imageUrls: imageUrls // Store all image URLs for this product
                             });
                         }
                         
@@ -1810,9 +1840,8 @@
             const phone = document.getElementById('phone').value;
             const location = document.getElementById('location').value;
             
-            // Generate order message
+            // Generate order message with product image URLs
             let message = `New Order from Fanzone Website%0A%0A`;
-            message += `website Link: https://fanzone-lb.netlify.app/%0A%0A`
             message += `Customer Information:%0A`;
             message += `Name: ${firstName} ${lastName}%0A`;
             message += `Phone: ${phone}%0A`;
@@ -1823,7 +1852,19 @@
             cart.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
-                message += `${index + 1}. ${item.name} ${item.size ? `(${item.size})` : ''} - $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}%0A`;
+                message += `${index + 1}. ${item.name} ${item.size ? `(${item.size})` : ''}%0A`;
+                message += `   Price: $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}%0A`;
+                
+                // Add all product image URLs
+                if (item.imageUrls && item.imageUrls.length > 0) {
+                    message += `   Product Images:%0A`;
+                    item.imageUrls.forEach((imgUrl, imgIndex) => {
+                        if (imgUrl) {
+                            message += `             ${imgUrl}%0A`;
+                        }
+                    });
+                }
+                message += `%0A`;
             });
             
             message += `%0ATotal: $${total.toFixed(2)}`;
@@ -1918,8 +1959,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
