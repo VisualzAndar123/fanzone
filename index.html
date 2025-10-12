@@ -1812,6 +1812,7 @@
             
             // Generate order message
             let message = `New Order from Fanzone Website%0A%0A`;
+            message += `website Link: https://fanzone-lb.netlify.app/%0A`
             message += `Customer Information:%0A`;
             message += `Name: ${firstName} ${lastName}%0A`;
             message += `Phone: ${phone}%0A`;
@@ -1826,6 +1827,10 @@
             });
             
             message += `%0ATotal: $${total.toFixed(2)}`;
+            message += `%0A%0ADelivery:%0A`;
+            message += `- Tripoli 3$%0A`;
+            message += `- North Governate 4$%0A`;
+            message += `- beirut / Chouf / Jnoub 5$%0A`;
             
             // Create WhatsApp URL
             const whatsappUrl = `https://wa.me/+96179129360?text=${message}`;
@@ -1913,7 +1918,6 @@
     </script>
 </body>
 </html>
-
 
 
 
