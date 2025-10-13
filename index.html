@@ -752,10 +752,29 @@
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.3s;
+            margin-bottom: 10px;
         }
         
         .checkout-btn:hover {
             opacity: 0.9;
+        }
+
+        /* Continue Shopping Button */
+        .continue-shopping-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .continue-shopping-btn:hover {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
         }
         
         /* Checkout Modal */
@@ -824,7 +843,7 @@
             font-weight: 500;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
             background-color: var(--primary-bg);
@@ -834,7 +853,7 @@
             font-size: 16px;
         }
         
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: var(--accent-blue);
         }
@@ -1260,6 +1279,8 @@
         
         <div class="cart-total" id="cart-total">Total: $0.00</div>
         <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+        <!-- Continue Shopping Button -->
+        <button class="continue-shopping-btn" id="continue-shopping-btn">Continue Shopping</button>
     </div>
     
     <!-- Checkout Modal -->
@@ -1288,9 +1309,23 @@
                     <input type="tel" id="phone" required>
                 </div>
                 
+                <!-- Delivery Zone Dropdown -->
                 <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" required>
+                    <label for="delivery-zone">Delivery Zone</label>
+                    <select id="delivery-zone" required>
+                        <option value="" disabled selected>Select your zone</option>
+                        <option value="Tripoli">Tripoli - $3</option>
+                        <option value="North Governate">North Governate - $4</option>
+                        <option value="Beirut">Beirut - $5</option>
+                        <option value="Chouf">Chouf - $5</option>
+                        <option value="Jnoub">Jnoub - $5</option>
+                    </select>
+                </div>
+                
+                <!-- Location Details Field -->
+                <div class="form-group">
+                    <label for="location-details">Location Details</label>
+                    <input type="text" id="location-details" required placeholder="Street, Building, Floor, etc.">
                 </div>
                 
                 <button type="submit" class="submit-order-btn">Submit Order via WhatsApp</button>
@@ -1655,6 +1690,14 @@
                         
                         // Get selected size if available
                         const selectedSize = productCard.querySelector('.size-option.selected');
+                        const sizeOptions = productCard.querySelectorAll('.size-option');
+                        
+                        // Check if size selection is required (if sizes are available)
+                        if (sizeOptions.length > 0 && !selectedSize) {
+                            alert('Please select a size before adding to cart.');
+                            return;
+                        }
+                        
                         const size = selectedSize ? selectedSize.getAttribute('data-size') : null;
                         
                         // Check if product already in cart
@@ -1711,6 +1754,7 @@
         const cartTotal = document.getElementById('cart-total');
         const cartCount = document.querySelector('.cart-count');
         const checkoutBtn = document.getElementById('checkout-btn');
+        const continueShoppingBtn = document.getElementById('continue-shopping-btn');
         
         let cart = [];
         
@@ -1722,6 +1766,13 @@
         });
         
         closeCart.addEventListener('click', () => {
+            cartModal.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Continue Shopping Button
+        continueShoppingBtn.addEventListener('click', () => {
             cartModal.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = 'auto';
@@ -1838,20 +1889,32 @@
             const firstName = document.getElementById('first-name').value;
             const lastName = document.getElementById('last-name').value;
             const phone = document.getElementById('phone').value;
-            const location = document.getElementById('location').value;
+            const deliveryZone = document.getElementById('delivery-zone').value;
+            const locationDetails = document.getElementById('location-details').value;
+            
+            // Calculate delivery charge based on selected zone
+            let deliveryCharge = 0;
+            if (deliveryZone === "Tripoli") {
+                deliveryCharge = 3;
+            } else if (deliveryZone === "North Governate") {
+                deliveryCharge = 4;
+            } else if (deliveryZone === "Beirut" || deliveryZone === "Chouf" || deliveryZone === "Jnoub") {
+                deliveryCharge = 5;
+            }
             
             // Generate order message with product image URLs
             let message = `New Order from Fanzone Website%0A%0A`;
             message += `Customer Information:%0A`;
             message += `Name: ${firstName} ${lastName}%0A`;
             message += `Phone: ${phone}%0A`;
-            message += `Location: ${location}%0A%0A`;
+            message += `Delivery Zone: ${deliveryZone}%0A`;
+            message += `Location Details: ${locationDetails}%0A%0A`;
             message += `Order Details:%0A`;
             
-            let total = 0;
+            let subtotal = 0;
             cart.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
-                total += itemTotal;
+                subtotal += itemTotal;
                 message += `${index + 1}. ${item.name} ${item.size ? `(${item.size})` : ''}%0A`;
                 message += `   Price: $${item.price.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}%0A`;
                 
@@ -1867,11 +1930,9 @@
                 message += `%0A`;
             });
             
-            message += `%0ATotal: $${total.toFixed(2)}`;
-            message += `%0A%0ADelivery:%0A`;
-            message += `- Tripoli 3$%0A`;
-            message += `- North Governate 4$%0A`;
-            message += `- beirut / Chouf / Jnoub 5$%0A`;
+            message += `%0ASubtotal: $${subtotal.toFixed(2)}%0A`;
+            message += `Delivery Charge: $${deliveryCharge.toFixed(2)}%0A`;
+            message += `Total: $${(subtotal + deliveryCharge).toFixed(2)}`;
             
             // Create WhatsApp URL
             const whatsappUrl = `https://wa.me/+96179129360?text=${message}`;
